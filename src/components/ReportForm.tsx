@@ -1,12 +1,12 @@
 import { useState, useRef } from 'react';
-import { BuildingReport, calculateVerdict, BUILDING_TYPES } from '@/types/building';
+import { BuildingReport, AccessibilityValue, calculateVerdict, BUILDING_TYPES } from '@/types/building';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, Upload, Camera, CheckCircle2, XCircle, FileDown, Printer } from 'lucide-react';
+import { X, Camera, CheckCircle2, XCircle, FileDown, Printer } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 interface ReportFormProps {
@@ -16,20 +16,45 @@ interface ReportFormProps {
   onCancel: () => void;
 }
 
+type CriterionDef = {
+  id: keyof Pick<BuildingReport, 'hasRamp' | 'hasElevator' | 'hasWideDoors' | 'hasAdaptedBathroom' | 'hasObstacleFreeAccess'>;
+  label: string;
+  options: AccessibilityValue[]; // which radio choices to show
+};
+
+const CRITERIA: CriterionDef[] = [
+  { id: 'hasRamp', label: 'Există rampă de acces?', options: ['yes', 'na', 'no'] },
+  { id: 'hasElevator', label: 'Există lift funcțional?', options: ['yes', 'na', 'no'] },
+  { id: 'hasWideDoors', label: 'Ușile sunt suficient de largi?', options: ['yes', 'no'] },
+  { id: 'hasAdaptedBathroom', label: 'Există grup sanitar adaptat?', options: ['yes', 'na', 'no'] },
+  { id: 'hasObstacleFreeAccess', label: 'Acces fără obstacole?', options: ['yes', 'no'] },
+];
+
+const OPTION_LABELS: Record<AccessibilityValue, string> = {
+  yes: 'Da',
+  no: 'Nu',
+  na: 'Inutil',
+};
+
 const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [type, setType] = useState<BuildingReport['type']>('public');
-  const [hasRamp, setHasRamp] = useState(false);
-  const [hasElevator, setHasElevator] = useState(false);
-  const [hasWideDoors, setHasWideDoors] = useState(false);
-  const [hasAdaptedBathroom, setHasAdaptedBathroom] = useState(false);
-  const [hasObstacleFreeAccess, setHasObstacleFreeAccess] = useState(false);
+  const [criteria, setCriteria] = useState<Record<CriterionDef['id'], AccessibilityValue>>({
+    hasRamp: 'yes',
+    hasElevator: 'na',
+    hasWideDoors: 'yes',
+    hasAdaptedBathroom: 'na',
+    hasObstacleFreeAccess: 'yes',
+  });
   const [comments, setComments] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const verdict = calculateVerdict({ hasRamp, hasElevator, hasWideDoors, hasAdaptedBathroom, hasObstacleFreeAccess });
+  const verdict = calculateVerdict(criteria);
+
+  const setCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
+    setCriteria((prev) => ({ ...prev, [id]: value }));
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -57,7 +82,7 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
       name: name.trim(),
       address: address.trim(),
       lat, lng, type,
-      hasRamp, hasElevator, hasWideDoors, hasAdaptedBathroom, hasObstacleFreeAccess,
+      ...criteria,
       comments: comments.trim(),
       images,
       verdict,
@@ -108,18 +133,20 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
     doc.setFont('helvetica', 'bold');
     doc.text('Criterii de accesibilitate:', margin, y); y += 7;
 
-    const criteria = [
-      ['Rampa de acces', hasRamp],
-      ['Lift functional', hasElevator],
-      ['Usi suficient de largi', hasWideDoors],
-      ['Grup sanitar adaptat', hasAdaptedBathroom],
-      ['Acces fara obstacole', hasObstacleFreeAccess],
-    ] as const;
+    const labels: Record<CriterionDef['id'], string> = {
+      hasRamp: 'Rampa de acces',
+      hasElevator: 'Lift functional',
+      hasWideDoors: 'Usi suficient de largi',
+      hasAdaptedBathroom: 'Grup sanitar adaptat',
+      hasObstacleFreeAccess: 'Acces fara obstacole',
+    };
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    criteria.forEach(([label, val]) => {
-      doc.text(`${val ? '[X]' : '[ ]'} ${label}`, margin + 4, y);
+    (Object.keys(labels) as CriterionDef['id'][]).forEach((key) => {
+      const v = criteria[key];
+      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : '[N/A]';
+      doc.text(`${mark} ${labels[key]}`, margin + 4, y);
       y += 6;
     });
 
@@ -133,12 +160,11 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
       y += lines.length * 5;
     }
 
-    // Add images if any
     if (images.length > 0) {
       y += 8;
       doc.setFont('helvetica', 'bold');
       doc.text('Imagini atasate:', margin, y); y += 8;
-      images.forEach((img, i) => {
+      images.forEach((img) => {
         if (y > 250) { doc.addPage(); y = margin; }
         try {
           doc.addImage(img, 'JPEG', margin, y, 60, 45);
@@ -193,14 +219,14 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
           {/* Address */}
           <div className="space-y-1.5">
             <Label htmlFor="address" className="font-semibold">Adresa *</Label>
-            <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex: Str. Victoriei 10, București" required />
+            <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="Ex: Str. Victoriei 10, Chișinău" required />
           </div>
 
           {/* Type */}
           <div className="space-y-1.5">
             <Label className="font-semibold">Tipul clădirii</Label>
             <Select value={type} onValueChange={(v) => setType(v as BuildingReport['type'])}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Alege tipul..." /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="public">Publică</SelectItem>
                 <SelectItem value="private">Privată</SelectItem>
@@ -214,20 +240,37 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
             📍 Coordonate: {lat.toFixed(5)}, {lng.toFixed(5)}
           </div>
 
-          {/* Criteria */}
-          <div className="space-y-3">
+          {/* Criteria — radio groups */}
+          <div className="space-y-4">
             <Label className="font-semibold text-base">Criterii de accesibilitate</Label>
-            {[
-              { id: 'ramp', label: 'Există rampă de acces?', checked: hasRamp, onChange: setHasRamp },
-              { id: 'elevator', label: 'Există lift funcțional?', checked: hasElevator, onChange: setHasElevator },
-              { id: 'doors', label: 'Ușile sunt suficient de largi?', checked: hasWideDoors, onChange: setHasWideDoors },
-              { id: 'bathroom', label: 'Există grup sanitar adaptat?', checked: hasAdaptedBathroom, onChange: setHasAdaptedBathroom },
-              { id: 'obstacle', label: 'Acces fără obstacole?', checked: hasObstacleFreeAccess, onChange: setHasObstacleFreeAccess },
-            ].map(({ id, label, checked, onChange }) => (
-              <div key={id} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors">
-                <Checkbox id={id} checked={checked} onCheckedChange={(v) => onChange(v === true)} />
-                <Label htmlFor={id} className="cursor-pointer font-medium text-sm">{label}</Label>
-              </div>
+            {CRITERIA.map(({ id, label, options }) => (
+              <fieldset key={id} className="rounded-xl border border-border p-3 space-y-2">
+                <legend className="px-1 text-sm font-medium text-foreground">{label}</legend>
+                <RadioGroup
+                  value={criteria[id]}
+                  onValueChange={(v) => setCriterion(id, v as AccessibilityValue)}
+                  className="flex flex-wrap gap-2"
+                >
+                  {options.map((opt) => {
+                    const inputId = `${id}-${opt}`;
+                    const selected = criteria[id] === opt;
+                    return (
+                      <Label
+                        key={opt}
+                        htmlFor={inputId}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
+                          selected
+                            ? 'border-primary bg-primary/10 text-foreground'
+                            : 'border-border bg-background hover:bg-muted'
+                        }`}
+                      >
+                        <RadioGroupItem id={inputId} value={opt} />
+                        <span className="text-sm font-medium">{OPTION_LABELS[opt]}</span>
+                      </Label>
+                    );
+                  })}
+                </RadioGroup>
+              </fieldset>
             ))}
           </div>
 
