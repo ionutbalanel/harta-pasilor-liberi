@@ -1,6 +1,13 @@
 import { BuildingReport } from '@/types/building';
 
 const STORAGE_KEY = 'harta-rusinii-buildings';
+const MIGRATION_KEY = 'harta-rusinii-demo-cleared-v1';
+
+// One-time cleanup of legacy demo seed data
+if (typeof window !== 'undefined' && !localStorage.getItem(MIGRATION_KEY)) {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.setItem(MIGRATION_KEY, '1');
+}
 
 export function getBuildings(): BuildingReport[] {
   const stored = localStorage.getItem(STORAGE_KEY);
