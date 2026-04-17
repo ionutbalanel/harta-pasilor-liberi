@@ -255,9 +255,9 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
                     const inputId = `${id}-${opt}`;
                     const selected = criteria[id] === opt;
                     return (
-                      <Label
+                      <div
                         key={opt}
-                        htmlFor={inputId}
+                        onClick={() => setCriterion(id, opt)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
                           selected
                             ? 'border-primary bg-primary/10 text-foreground'
@@ -265,8 +265,10 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
                         }`}
                       >
                         <RadioGroupItem id={inputId} value={opt} />
-                        <span className="text-sm font-medium">{OPTION_LABELS[opt]}</span>
-                      </Label>
+                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer">
+                          {OPTION_LABELS[opt]}
+                        </Label>
+                      </div>
                     );
                   })}
                 </RadioGroup>
