@@ -1,69 +1,23 @@
 import { BuildingReport } from '@/types/building';
 
 const STORAGE_KEY = 'harta-rusinii-buildings';
+const MIGRATION_KEY = 'harta-rusinii-demo-cleared-v1';
 
-// Sample data for demo
-const SAMPLE_DATA: BuildingReport[] = [
-  {
-    id: '1',
-    name: 'Primăria Sector 3',
-    address: 'Calea Dudești 191, București',
-    lat: 44.4168,
-    lng: 26.1255,
-    type: 'public',
-    hasRamp: false,
-    hasElevator: true,
-    hasWideDoors: false,
-    hasAdaptedBathroom: false,
-    hasObstacleFreeAccess: false,
-    comments: 'Intrarea principală nu are rampă. Ușile sunt prea înguste pentru scaun rulant.',
-    images: [],
-    verdict: 'inaccessible',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Biblioteca Națională',
-    address: 'Bulevardul Unirii 22, București',
-    lat: 44.4275,
-    lng: 26.1040,
-    type: 'institution',
-    hasRamp: true,
-    hasElevator: true,
-    hasWideDoors: true,
-    hasAdaptedBathroom: true,
-    hasObstacleFreeAccess: true,
-    comments: 'Clădire complet accesibilă, renovată recent.',
-    images: [],
-    verdict: 'accessible',
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Spitalul Universitar',
-    address: 'Splaiul Independenței 169, București',
-    lat: 44.4350,
-    lng: 26.0520,
-    type: 'public',
-    hasRamp: true,
-    hasElevator: true,
-    hasWideDoors: true,
-    hasAdaptedBathroom: false,
-    hasObstacleFreeAccess: false,
-    comments: 'Rampă și lift disponibile, dar grupurile sanitare nu sunt adaptate.',
-    images: [],
-    verdict: 'inaccessible',
-    createdAt: new Date().toISOString(),
-  },
-];
+// One-time cleanup of legacy demo seed data
+if (typeof window !== 'undefined' && !localStorage.getItem(MIGRATION_KEY)) {
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.setItem(MIGRATION_KEY, '1');
+}
 
 export function getBuildings(): BuildingReport[] {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_DATA));
-    return SAMPLE_DATA;
+  if (!stored) return [];
+  try {
+    const parsed = JSON.parse(stored);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
-  return JSON.parse(stored);
 }
 
 export function addBuilding(building: BuildingReport): void {

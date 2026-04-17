@@ -1,7 +1,21 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { BuildingReport, BUILDING_TYPES } from '@/types/building';
+import { Button } from '@/components/ui/button';
+import { Locate, LoaderCircle } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+
+// Republic of Moldova default view
+const MOLDOVA_CENTER: [number, number] = [47.0105, 28.8638];
+const MOLDOVA_ZOOM = 8;
+
+const userLocationIcon = L.divIcon({
+  html: `<div style="position:relative;width:20px;height:20px"><div style="position:absolute;inset:0;background:#3b82f6;border-radius:50%;border:3px solid white;box-shadow:0 0 0 2px #3b82f6,0 2px 8px rgba(0,0,0,0.3)"></div><div style="position:absolute;inset:-8px;background:#3b82f6;border-radius:50%;opacity:0.2;animation:pulse 2s infinite"></div></div>`,
+  className: '',
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
 
 // Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -72,12 +86,14 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
+  const [locating, setLocating] = useState(false);
 
   // Initialize map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    const map = L.map(containerRef.current).setView([44.4268, 26.1025], 13);
+    const map = L.map(containerRef.current).setView(MOLDOVA_CENTER, MOLDOVA_ZOOM);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
@@ -89,6 +105,39 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
       map.remove();
       mapRef.current = null;
     };
+  }, []);
+
+  const locateUser = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!('geolocation' in navigator)) {
+      toast({ title: 'Geolocație indisponibilă', description: 'Browser-ul nu suportă geolocația.', variant: 'destructive' });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng([latitude, longitude]);
+        } else {
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: userLocationIcon })
+            .addTo(map)
+            .bindPopup('Locația ta');
+        }
+        map.flyTo([latitude, longitude], 15, { duration: 1.2 });
+        setLocating(false);
+      },
+      (err) => {
+        setLocating(false);
+        toast({
+          title: 'Nu am putut obține locația',
+          description: err.code === 1 ? 'Permisiunea a fost refuzată.' : 'Încearcă din nou.',
+          variant: 'destructive',
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
   }, []);
 
   // Handle click
@@ -137,6 +186,17 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
           📍 Click pe hartă pentru a alege locația
         </div>
       )}
+      <Button
+        onClick={locateUser}
+        disabled={locating}
+        size="icon"
+        variant="secondary"
+        className="absolute bottom-6 right-3 z-[1000] shadow-lg h-11 w-11 rounded-full"
+        aria-label="Centrează pe locația mea"
+        title="Centrează pe locația mea"
+      >
+        {locating ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Locate className="h-5 w-5" />}
+      </Button>
       <div ref={containerRef} className="w-full h-full" style={{ minHeight: '400px' }} />
     </div>
   );
