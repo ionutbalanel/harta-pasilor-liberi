@@ -109,35 +109,90 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
 
   const locateUser = useCallback(() => {
     const map = mapRef.current;
-    if (!map) return;
-    if (!('geolocation' in navigator)) {
-      toast({ title: 'Geolocație indisponibilă', description: 'Browser-ul nu suportă geolocația.', variant: 'destructive' });
+    if (!map) {
+      console.warn('[geolocation] Map not initialized yet');
       return;
     }
+
+    // Geolocation requires a secure context (HTTPS) on most browsers, especially mobile.
+    const isSecure = window.isSecureContext || location.hostname === 'localhost';
+    if (!isSecure) {
+      console.error('[geolocation] Insecure context. Geolocation requires HTTPS.', {
+        protocol: location.protocol,
+        hostname: location.hostname,
+      });
+      toast({
+        title: 'Necesită HTTPS',
+        description: 'Geolocația funcționează doar pe conexiuni securizate (HTTPS).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!('geolocation' in navigator)) {
+      console.error('[geolocation] navigator.geolocation not available');
+      toast({
+        title: 'Geolocație indisponibilă',
+        description: 'Browser-ul nu suportă geolocația.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    console.log('[geolocation] Requesting current position...', {
+      userAgent: navigator.userAgent,
+      secureContext: window.isSecureContext,
+    });
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        if (userMarkerRef.current) {
-          userMarkerRef.current.setLatLng([latitude, longitude]);
-        } else {
-          userMarkerRef.current = L.marker([latitude, longitude], { icon: userLocationIcon })
-            .addTo(map)
-            .bindPopup('Locația ta');
-        }
-        map.flyTo([latitude, longitude], 15, { duration: 1.2 });
-        setLocating(false);
-      },
-      (err) => {
-        setLocating(false);
-        toast({
-          title: 'Nu am putut obține locația',
-          description: err.code === 1 ? 'Permisiunea a fost refuzată.' : 'Încearcă din nou.',
-          variant: 'destructive',
-        });
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+
+    const onSuccess = (pos: GeolocationPosition) => {
+      const { latitude, longitude, accuracy } = pos.coords;
+      console.log('[geolocation] Position received', { latitude, longitude, accuracy });
+      if (userMarkerRef.current) {
+        userMarkerRef.current.setLatLng([latitude, longitude]);
+      } else {
+        userMarkerRef.current = L.marker([latitude, longitude], { icon: userLocationIcon })
+          .addTo(map)
+          .bindPopup('Locația ta');
+      }
+      map.flyTo([latitude, longitude], 15, { duration: 1.2 });
+      setLocating(false);
+      toast({
+        title: 'Locație detectată',
+        description: `Acuratețe: ~${Math.round(accuracy)}m`,
+      });
+    };
+
+    const onError = (err: GeolocationPositionError) => {
+      setLocating(false);
+      console.error('[geolocation] Error', { code: err.code, message: err.message });
+      const messages: Record<number, { title: string; description: string }> = {
+        1: {
+          title: 'Permisiune refuzată',
+          description: 'Activează accesul la locație din setările browserului și reîncarcă pagina.',
+        },
+        2: {
+          title: 'Locație indisponibilă',
+          description: 'Verifică dacă GPS-ul este activat și ai semnal.',
+        },
+        3: {
+          title: 'Timeout',
+          description: 'Cererea a expirat. Încearcă din nou într-un loc cu semnal mai bun.',
+        },
+      };
+      const msg = messages[err.code] ?? {
+        title: 'Eroare la geolocație',
+        description: err.message || 'Încearcă din nou.',
+      };
+      toast({ ...msg, variant: 'destructive' });
+    };
+
+    // Call directly inside the user-gesture click handler — no awaits before this.
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
+    });
   }, []);
 
   // Handle click
