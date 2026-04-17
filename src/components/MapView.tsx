@@ -42,17 +42,24 @@ const createIcon = (verdict: 'accessible' | 'inaccessible') => {
 function buildPopupContent(building: BuildingReport): string {
   const verdictColor = building.verdict === 'accessible' ? '#16a34a' : '#ef4444';
   const verdictLabel = building.verdict === 'accessible' ? '✓ Accesibilă' : '✗ Inaccesibilă';
-  const criteria = [
+  const criteria: Array<[string, BuildingReport['hasRamp']]> = [
     ['Rampă de acces', building.hasRamp],
     ['Lift funcțional', building.hasElevator],
     ['Uși largi', building.hasWideDoors],
     ['Grup sanitar adaptat', building.hasAdaptedBathroom],
     ['Acces fără obstacole', building.hasObstacleFreeAccess],
-  ] as const;
+  ];
 
-  const criteriaHtml = criteria.map(([label, val]) =>
-    `<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:${val ? '#16a34a' : '#ef4444'}">${val ? '✓' : '✗'}</span><span>${label}</span></div>`
-  ).join('');
+  const renderMark = (val: BuildingReport['hasRamp']) => {
+    if (val === 'yes') return { color: '#16a34a', icon: '✓' };
+    if (val === 'no') return { color: '#ef4444', icon: '✗' };
+    return { color: '#6b7280', icon: '–' };
+  };
+
+  const criteriaHtml = criteria.map(([label, val]) => {
+    const { color, icon } = renderMark(val);
+    return `<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:${color}">${icon}</span><span>${label}</span></div>`;
+  }).join('');
 
   const commentsHtml = building.comments
     ? `<p style="font-size:12px;color:#444;font-style:italic;border-top:1px solid #eee;padding-top:6px;margin-top:8px">"${building.comments}"</p>`
