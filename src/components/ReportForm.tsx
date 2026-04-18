@@ -145,7 +145,7 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
     doc.setFont('helvetica', 'normal');
     (Object.keys(labels) as CriterionDef['id'][]).forEach((key) => {
       const v = criteria[key];
-      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : '[N/A]';
+      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : v === 'na' ? '[N/A]' : '[ - ]';
       doc.text(`${mark} ${labels[key]}`, margin + 4, y);
       y += 6;
     });
