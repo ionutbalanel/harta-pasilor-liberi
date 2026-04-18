@@ -40,12 +40,12 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [type, setType] = useState<BuildingReport['type']>('public');
-  const [criteria, setCriteria] = useState<Record<CriterionDef['id'], AccessibilityValue>>({
-    hasRamp: 'yes',
-    hasElevator: 'na',
-    hasWideDoors: 'yes',
-    hasAdaptedBathroom: 'na',
-    hasObstacleFreeAccess: 'yes',
+  const [criteria, setCriteria] = useState<Record<CriterionDef['id'], CriterionValue>>({
+    hasRamp: null,
+    hasElevator: null,
+    hasWideDoors: null,
+    hasAdaptedBathroom: null,
+    hasObstacleFreeAccess: null,
   });
   const [comments, setComments] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -53,8 +53,8 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
 
   const verdict = calculateVerdict(criteria);
 
-  const setCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
-    setCriteria((prev) => ({ ...prev, [id]: value }));
+  const toggleCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
+    setCriteria((prev) => ({ ...prev, [id]: prev[id] === value ? null : value }));
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
