@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { BuildingReport, AccessibilityValue, calculateVerdict, BUILDING_TYPES } from '@/types/building';
+import { BuildingReport, AccessibilityValue, CriterionValue, calculateVerdict, BUILDING_TYPES } from '@/types/building';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,12 +40,12 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [type, setType] = useState<BuildingReport['type']>('public');
-  const [criteria, setCriteria] = useState<Record<CriterionDef['id'], AccessibilityValue>>({
-    hasRamp: 'yes',
-    hasElevator: 'na',
-    hasWideDoors: 'yes',
-    hasAdaptedBathroom: 'na',
-    hasObstacleFreeAccess: 'yes',
+  const [criteria, setCriteria] = useState<Record<CriterionDef['id'], CriterionValue>>({
+    hasRamp: null,
+    hasElevator: null,
+    hasWideDoors: null,
+    hasAdaptedBathroom: null,
+    hasObstacleFreeAccess: null,
   });
   const [comments, setComments] = useState('');
   const [images, setImages] = useState<string[]>([]);
@@ -53,8 +53,8 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
 
   const verdict = calculateVerdict(criteria);
 
-  const setCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
-    setCriteria((prev) => ({ ...prev, [id]: value }));
+  const toggleCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
+    setCriteria((prev) => ({ ...prev, [id]: prev[id] === value ? null : value }));
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -145,7 +145,7 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
     doc.setFont('helvetica', 'normal');
     (Object.keys(labels) as CriterionDef['id'][]).forEach((key) => {
       const v = criteria[key];
-      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : '[N/A]';
+      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : v === 'na' ? '[N/A]' : '[ - ]';
       doc.text(`${mark} ${labels[key]}`, margin + 4, y);
       y += 6;
     });
@@ -247,8 +247,8 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
               <fieldset key={id} className="rounded-xl border border-border p-3 space-y-2">
                 <legend className="px-1 text-sm font-medium text-foreground">{label}</legend>
                 <RadioGroup
-                  value={criteria[id]}
-                  onValueChange={(v) => setCriterion(id, v as AccessibilityValue)}
+                  value={criteria[id] ?? ''}
+                  onValueChange={(v) => toggleCriterion(id, v as AccessibilityValue)}
                   className="flex flex-wrap gap-2"
                 >
                   {options.map((opt) => {
@@ -257,15 +257,15 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
                     return (
                       <div
                         key={opt}
-                        onClick={() => setCriterion(id, opt)}
+                        onClick={() => toggleCriterion(id, opt)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
                           selected
                             ? 'border-primary bg-primary/10 text-foreground'
                             : 'border-border bg-background hover:bg-muted'
                         }`}
                       >
-                        <RadioGroupItem id={inputId} value={opt} />
-                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer">
+                        <RadioGroupItem id={inputId} value={opt} onClick={(e) => e.stopPropagation()} />
+                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer" onClick={(e) => e.preventDefault()}>
                           {OPTION_LABELS[opt]}
                         </Label>
                       </div>
