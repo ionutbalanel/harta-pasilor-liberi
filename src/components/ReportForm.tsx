@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { BuildingReport, AccessibilityValue, calculateVerdict, BUILDING_TYPES } from '@/types/building';
+import { BuildingReport, AccessibilityValue, CriterionValue, calculateVerdict, BUILDING_TYPES } from '@/types/building';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
