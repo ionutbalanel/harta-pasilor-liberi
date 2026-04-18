@@ -1,5 +1,7 @@
 export type AccessibilityValue = 'yes' | 'no' | 'na';
 
+export type CriterionValue = AccessibilityValue | null;
+
 export interface BuildingReport {
   id: string;
   name: string;
@@ -7,11 +9,11 @@ export interface BuildingReport {
   lat: number;
   lng: number;
   type: 'public' | 'private' | 'institution';
-  hasRamp: AccessibilityValue;
-  hasElevator: AccessibilityValue;
-  hasWideDoors: AccessibilityValue;
-  hasAdaptedBathroom: AccessibilityValue;
-  hasObstacleFreeAccess: AccessibilityValue;
+  hasRamp: CriterionValue;
+  hasElevator: CriterionValue;
+  hasWideDoors: CriterionValue;
+  hasAdaptedBathroom: CriterionValue;
+  hasObstacleFreeAccess: CriterionValue;
   comments: string;
   images: string[];
   verdict: 'accessible' | 'inaccessible';
