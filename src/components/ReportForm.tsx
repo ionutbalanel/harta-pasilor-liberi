@@ -247,8 +247,8 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
               <fieldset key={id} className="rounded-xl border border-border p-3 space-y-2">
                 <legend className="px-1 text-sm font-medium text-foreground">{label}</legend>
                 <RadioGroup
-                  value={criteria[id]}
-                  onValueChange={(v) => setCriterion(id, v as AccessibilityValue)}
+                  value={criteria[id] ?? ''}
+                  onValueChange={(v) => toggleCriterion(id, v as AccessibilityValue)}
                   className="flex flex-wrap gap-2"
                 >
                   {options.map((opt) => {
@@ -257,15 +257,15 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
                     return (
                       <div
                         key={opt}
-                        onClick={() => setCriterion(id, opt)}
+                        onClick={() => toggleCriterion(id, opt)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
                           selected
                             ? 'border-primary bg-primary/10 text-foreground'
                             : 'border-border bg-background hover:bg-muted'
                         }`}
                       >
-                        <RadioGroupItem id={inputId} value={opt} />
-                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer">
+                        <RadioGroupItem id={inputId} value={opt} onClick={(e) => e.stopPropagation()} />
+                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer" onClick={(e) => e.preventDefault()}>
                           {OPTION_LABELS[opt]}
                         </Label>
                       </div>
