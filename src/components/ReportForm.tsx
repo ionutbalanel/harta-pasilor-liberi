@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
 
 import { X, Camera, CheckCircle2, XCircle, FileDown, Printer } from 'lucide-react';
 import jsPDF from 'jspdf';
@@ -250,32 +250,38 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
             {CRITERIA.map(({ id, label, options }) => (
               <fieldset key={id} className="rounded-xl border border-border p-3 space-y-2">
                 <legend className="px-1 text-sm font-medium text-foreground">{label}</legend>
-                <RadioGroup
-                  value={criteria[id] ?? ''}
-                  onValueChange={(v) => toggleCriterion(id, v as AccessibilityValue)}
-                  className="flex flex-wrap gap-2"
-                >
+                <div className="flex flex-wrap gap-2" role="group" aria-label={label}>
                   {options.map((opt) => {
                     const inputId = `${id}-${opt}`;
                     const selected = criteria[id] === opt;
                     return (
-                      <div
+                      <button
                         key={opt}
+                        type="button"
                         onClick={() => toggleCriterion(id, opt)}
-                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
+                        aria-pressed={selected}
+                        aria-label={`${label} - ${OPTION_LABELS[opt]}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors min-h-11 flex-1 min-w-[90px] justify-center ${
                           selected
                             ? 'border-primary bg-primary/10 text-foreground'
                             : 'border-border bg-background hover:bg-muted'
                         }`}
                       >
-                        <RadioGroupItem id={inputId} value={opt} onClick={(e) => e.stopPropagation()} />
-                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer" onClick={(e) => e.preventDefault()}>
+                        <span
+                          aria-hidden="true"
+                          className={`flex h-4 w-4 items-center justify-center rounded-full border ${
+                            selected ? 'border-primary text-primary' : 'border-primary/70 text-transparent'
+                          }`}
+                        >
+                          <span className={`h-2.5 w-2.5 rounded-full bg-current ${selected ? 'opacity-100' : 'opacity-0'}`} />
+                        </span>
+                        <Label htmlFor={inputId} className="text-sm font-medium cursor-pointer pointer-events-none">
                           {OPTION_LABELS[opt]}
                         </Label>
-                      </div>
+                      </button>
                     );
                   })}
-                </RadioGroup>
+                </div>
               </fieldset>
             ))}
           </div>
