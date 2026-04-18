@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: mode === "production" ? "/harta-pasilor-liberi/" : "/",
+  base: mode === "production" ? "/harta-pasilor-liberi/" : "/harta-pasilor-liberi/assets/index.js",
   server: {
     host: "::",
     port: 8080,
