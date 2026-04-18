@@ -224,15 +224,19 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
 
           {/* Type */}
           <div className="space-y-1.5">
-            <Label className="font-semibold">Tipul clădirii</Label>
-            <Select value={type} onValueChange={(v) => setType(v as BuildingReport['type'])}>
-              <SelectTrigger><SelectValue placeholder="Alege tipul..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="public">Publică</SelectItem>
-                <SelectItem value="private">Privată</SelectItem>
-                <SelectItem value="institution">Instituție</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label htmlFor="building-type" className="font-semibold">Tipul clădirii</Label>
+            <select
+              id="building-type"
+              value={type}
+              onChange={(e) => setType(e.target.value as BuildingReport['type'])}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              {Object.entries(BUILDING_TYPES).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Coordinates */}
