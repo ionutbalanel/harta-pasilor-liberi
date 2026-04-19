@@ -160,17 +160,53 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
       y += lines.length * 5;
     }
 
+    // Imaginile pe pagini separate, începând cu pagina 2
     if (images.length > 0) {
-      y += 8;
-      doc.setFont('helvetica', 'bold');
-      doc.text('Imagini atasate:', margin, y); y += 8;
-      images.forEach((img) => {
-        if (y > 250) { doc.addPage(); y = margin; }
-        try {
-          doc.addImage(img, 'JPEG', margin, y, 60, 45);
-          y += 50;
-        } catch {}
-      });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const imgMargin = 15;
+      const gap = 10;
+      const cols = 2;
+      const rows = 2;
+      const perPage = cols * rows;
+      const cellW = (pageW - imgMargin * 2 - gap * (cols - 1)) / cols;
+      const cellH = (pageH - imgMargin * 2 - gap * (rows - 1)) / rows;
+
+      const loadImg = (src: string) =>
+        new Promise<HTMLImageElement>((resolve, reject) => {
+          const im = new Image();
+          im.onload = () => resolve(im);
+          im.onerror = reject;
+          im.src = src;
+        });
+
+      Promise.all(images.map(loadImg))
+        .then((loaded) => {
+          loaded.forEach((im, idx) => {
+            const onPageIdx = idx % perPage;
+            if (onPageIdx === 0) doc.addPage();
+            const col = onPageIdx % cols;
+            const row = Math.floor(onPageIdx / cols);
+            const cellX = imgMargin + col * (cellW + gap);
+            const cellY = imgMargin + row * (cellH + gap);
+
+            // Păstrare aspect ratio
+            const ratio = Math.min(cellW / im.width, cellH / im.height);
+            const w = im.width * ratio;
+            const h = im.height * ratio;
+            const x = cellX + (cellW - w) / 2;
+            const yPos = cellY + (cellH - h) / 2;
+
+            try {
+              doc.addImage(im.src, 'JPEG', x, yPos, w, h);
+            } catch {}
+          });
+          doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
+        })
+        .catch(() => {
+          doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
+        });
+      return;
     }
 
     doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
