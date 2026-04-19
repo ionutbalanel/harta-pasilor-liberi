@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Locate, LoaderCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Lightbox from './Lightbox';
+import { generateReportPDF } from '@/lib/generateReportPDF';
 
 // Republic of Moldova default view
 const MOLDOVA_CENTER: [number, number] = [47.0105, 28.8638];
@@ -80,6 +81,10 @@ function buildPopupContent(building: BuildingReport): string {
       <div style="display:flex;flex-direction:column;gap:3px">${criteriaHtml}</div>
       ${commentsHtml}
       ${imagesHtml}
+      <button data-pdf-building="${building.id}" style="margin-top:10px;width:100%;padding:8px 10px;border:0;border-radius:8px;background:#1a1a1a;color:white;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descarcă raport PDF
+      </button>
     </div>
   `;
 }
@@ -243,7 +248,7 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
     });
   }, [buildings]);
 
-  // Delegate clicks on popup images to open lightbox
+  // Delegate clicks on popup images (lightbox) and PDF download button
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -251,7 +256,35 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
 
     const handler = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (!target || target.tagName !== 'IMG') return;
+      if (!target) return;
+
+      // PDF download button (may be clicked on the button or its inner svg/path)
+      const pdfBtn = target.closest('[data-pdf-building]') as HTMLElement | null;
+      if (pdfBtn) {
+        const id = pdfBtn.getAttribute('data-pdf-building');
+        const b = buildings.find((x) => x.id === id);
+        if (b) {
+          generateReportPDF({
+            name: b.name,
+            address: b.address,
+            type: b.type,
+            lat: b.lat,
+            lng: b.lng,
+            hasRamp: b.hasRamp,
+            hasElevator: b.hasElevator,
+            hasWideDoors: b.hasWideDoors,
+            hasAdaptedBathroom: b.hasAdaptedBathroom,
+            hasObstacleFreeAccess: b.hasObstacleFreeAccess,
+            comments: b.comments,
+            images: b.images,
+            verdict: b.verdict,
+          });
+        }
+        return;
+      }
+
+      // Lightbox image click
+      if (target.tagName !== 'IMG') return;
       const id = target.getAttribute('data-lightbox-building');
       const idxAttr = target.getAttribute('data-lightbox-index');
       if (!id || idxAttr === null) return;
