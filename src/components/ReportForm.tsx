@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 
 
 import { X, Camera, CheckCircle2, XCircle, FileDown, Printer } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { generateReportPDF } from '@/lib/generateReportPDF';
 
 interface ReportFormProps {
   lat: number;
@@ -92,124 +92,21 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
   };
 
   const generatePDF = () => {
-    const doc = new jsPDF();
-    const margin = 20;
-    let y = margin;
-
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Harta Rusinii - Raport Accesibilitate', margin, y);
-    y += 12;
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generat la: ${new Date().toLocaleDateString('ro-RO')}`, margin, y);
-    y += 10;
-
-    doc.setDrawColor(200);
-    doc.line(margin, y, 190, y);
-    y += 8;
-
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text(name || 'Fara nume', margin, y);
-    y += 7;
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Adresa: ${address}`, margin, y); y += 6;
-    doc.text(`Tip: ${BUILDING_TYPES[type]}`, margin, y); y += 6;
-    doc.text(`Coordonate: ${lat.toFixed(5)}, ${lng.toFixed(5)}`, margin, y); y += 10;
-
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    const verdictText = verdict === 'accessible' ? 'ACCESIBILA' : 'INACCESIBILA';
-    doc.setTextColor(verdict === 'accessible' ? 22 : 239, verdict === 'accessible' ? 163 : 68, verdict === 'accessible' ? 74 : 68);
-    doc.text(`Verdict: ${verdictText}`, margin, y);
-    doc.setTextColor(0);
-    y += 10;
-
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Criterii de accesibilitate:', margin, y); y += 7;
-
-    const labels: Record<CriterionDef['id'], string> = {
-      hasRamp: 'Rampa de acces',
-      hasElevator: 'Lift functional',
-      hasWideDoors: 'Usi suficient de largi',
-      hasAdaptedBathroom: 'Grup sanitar adaptat',
-      hasObstacleFreeAccess: 'Acces fara obstacole',
-    };
-
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    (Object.keys(labels) as CriterionDef['id'][]).forEach((key) => {
-      const v = criteria[key];
-      const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : v === 'na' ? '[N/A]' : '[ - ]';
-      doc.text(`${mark} ${labels[key]}`, margin + 4, y);
-      y += 6;
+    generateReportPDF({
+      name: name || 'Fara nume',
+      address,
+      type,
+      lat,
+      lng,
+      hasRamp: criteria.hasRamp,
+      hasElevator: criteria.hasElevator,
+      hasWideDoors: criteria.hasWideDoors,
+      hasAdaptedBathroom: criteria.hasAdaptedBathroom,
+      hasObstacleFreeAccess: criteria.hasObstacleFreeAccess,
+      comments,
+      images,
+      verdict,
     });
-
-    if (comments) {
-      y += 4;
-      doc.setFont('helvetica', 'bold');
-      doc.text('Comentarii:', margin, y); y += 6;
-      doc.setFont('helvetica', 'normal');
-      const lines = doc.splitTextToSize(comments, 170);
-      doc.text(lines, margin, y);
-      y += lines.length * 5;
-    }
-
-    // Imaginile pe pagini separate, începând cu pagina 2
-    if (images.length > 0) {
-      const pageW = doc.internal.pageSize.getWidth();
-      const pageH = doc.internal.pageSize.getHeight();
-      const imgMargin = 15;
-      const gap = 10;
-      const cols = 2;
-      const rows = 2;
-      const perPage = cols * rows;
-      const cellW = (pageW - imgMargin * 2 - gap * (cols - 1)) / cols;
-      const cellH = (pageH - imgMargin * 2 - gap * (rows - 1)) / rows;
-
-      const loadImg = (src: string) =>
-        new Promise<HTMLImageElement>((resolve, reject) => {
-          const im = new Image();
-          im.onload = () => resolve(im);
-          im.onerror = reject;
-          im.src = src;
-        });
-
-      Promise.all(images.map(loadImg))
-        .then((loaded) => {
-          loaded.forEach((im, idx) => {
-            const onPageIdx = idx % perPage;
-            if (onPageIdx === 0) doc.addPage();
-            const col = onPageIdx % cols;
-            const row = Math.floor(onPageIdx / cols);
-            const cellX = imgMargin + col * (cellW + gap);
-            const cellY = imgMargin + row * (cellH + gap);
-
-            // Păstrare aspect ratio
-            const ratio = Math.min(cellW / im.width, cellH / im.height);
-            const w = im.width * ratio;
-            const h = im.height * ratio;
-            const x = cellX + (cellW - w) / 2;
-            const yPos = cellY + (cellH - h) / 2;
-
-            try {
-              doc.addImage(im.src, 'JPEG', x, yPos, w, h);
-            } catch {}
-          });
-          doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
-        })
-        .catch(() => {
-          doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
-        });
-      return;
-    }
-
-    doc.save(`raport-${name.replace(/\s+/g, '-').toLowerCase() || 'cladire'}.pdf`);
   };
 
   const handlePrint = () => {
