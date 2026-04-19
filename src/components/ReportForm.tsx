@@ -114,16 +114,16 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-foreground/50 z-[2000] flex items-start justify-center p-4 overflow-y-auto">
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg my-8 border border-border">
-        <div className="flex items-center justify-between p-5 border-b border-border">
-          <h2 className="text-lg font-bold text-foreground">Raportează o clădire</h2>
+    <div className="fixed inset-0 bg-foreground/50 z-[2000] flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
+      <div className="bg-card rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-lg my-2 sm:my-8 border border-border">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border sticky top-0 bg-card rounded-t-xl sm:rounded-t-2xl z-10">
+          <h2 className="text-base sm:text-lg font-bold text-foreground">Raportează o clădire</h2>
           <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4 sm:space-y-5">
           {/* Verdict preview */}
           <div className={`p-4 rounded-xl flex items-center gap-3 ${
             verdict === 'accessible' ? 'bg-accessible/10' : 'bg-inaccessible/10'

@@ -9,14 +9,16 @@ interface FilterBarProps {
 
 const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
   return (
-    <div className="flex items-center gap-2 p-3 bg-card border-b border-border">
-      <Filter className="w-4 h-4 text-muted-foreground" />
-      <span className="text-sm font-medium text-muted-foreground mr-1">Filtrează:</span>
+    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 bg-card border-b border-border">
+      <div className="flex items-center gap-1.5 mr-1">
+        <Filter className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Filtrează:</span>
+      </div>
       <Button
         variant={filter === 'all' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('all')}
-        className="gap-1.5 text-xs"
+        className="gap-1.5 text-xs h-8"
       >
         <Layers className="w-3.5 h-3.5" />
         Toate
@@ -25,7 +27,7 @@ const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
         variant={filter === 'accessible' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('accessible')}
-        className={`gap-1.5 text-xs ${filter === 'accessible' ? 'bg-accessible text-accessible-foreground hover:bg-accessible/90' : ''}`}
+        className={`gap-1.5 text-xs h-8 ${filter === 'accessible' ? 'bg-accessible text-accessible-foreground hover:bg-accessible/90' : ''}`}
       >
         <CheckCircle2 className="w-3.5 h-3.5" />
         Accesibile
@@ -34,7 +36,7 @@ const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
         variant={filter === 'inaccessible' ? 'default' : 'outline'}
         size="sm"
         onClick={() => onFilterChange('inaccessible')}
-        className={`gap-1.5 text-xs ${filter === 'inaccessible' ? 'bg-inaccessible text-inaccessible-foreground hover:bg-inaccessible/90' : ''}`}
+        className={`gap-1.5 text-xs h-8 ${filter === 'inaccessible' ? 'bg-inaccessible text-inaccessible-foreground hover:bg-inaccessible/90' : ''}`}
       >
         <XCircle className="w-3.5 h-3.5" />
         Inaccesibile
