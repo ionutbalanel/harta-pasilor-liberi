@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Locate, LoaderCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Lightbox from './Lightbox';
+import { generateReportPDF } from '@/lib/generateReportPDF';
 
 // Republic of Moldova default view
 const MOLDOVA_CENTER: [number, number] = [47.0105, 28.8638];
@@ -247,7 +248,7 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
     });
   }, [buildings]);
 
-  // Delegate clicks on popup images to open lightbox
+  // Delegate clicks on popup images (lightbox) and PDF download button
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -255,7 +256,35 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
 
     const handler = (e: Event) => {
       const target = e.target as HTMLElement;
-      if (!target || target.tagName !== 'IMG') return;
+      if (!target) return;
+
+      // PDF download button (may be clicked on the button or its inner svg/path)
+      const pdfBtn = target.closest('[data-pdf-building]') as HTMLElement | null;
+      if (pdfBtn) {
+        const id = pdfBtn.getAttribute('data-pdf-building');
+        const b = buildings.find((x) => x.id === id);
+        if (b) {
+          generateReportPDF({
+            name: b.name,
+            address: b.address,
+            type: b.type,
+            lat: b.lat,
+            lng: b.lng,
+            hasRamp: b.hasRamp,
+            hasElevator: b.hasElevator,
+            hasWideDoors: b.hasWideDoors,
+            hasAdaptedBathroom: b.hasAdaptedBathroom,
+            hasObstacleFreeAccess: b.hasObstacleFreeAccess,
+            comments: b.comments,
+            images: b.images,
+            verdict: b.verdict,
+          });
+        }
+        return;
+      }
+
+      // Lightbox image click
+      if (target.tagName !== 'IMG') return;
       const id = target.getAttribute('data-lightbox-building');
       const idxAttr = target.getAttribute('data-lightbox-index');
       if (!id || idxAttr === null) return;
