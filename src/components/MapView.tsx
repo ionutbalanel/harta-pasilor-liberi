@@ -5,6 +5,7 @@ import { BuildingReport, BUILDING_TYPES } from '@/types/building';
 import { Button } from '@/components/ui/button';
 import { Locate, LoaderCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import Lightbox from './Lightbox';
 
 // Republic of Moldova default view
 const MOLDOVA_CENTER: [number, number] = [47.0105, 28.8638];
@@ -66,7 +67,7 @@ function buildPopupContent(building: BuildingReport): string {
     : '';
 
   const imagesHtml = building.images.length > 0
-    ? `<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${building.images.slice(0, 3).map(img => `<img src="${img}" alt="Foto" style="width:60px;height:60px;object-fit:cover;border-radius:8px"/>`).join('')}</div>`
+    ? `<div style="display:flex;gap:4px;margin-top:8px;flex-wrap:wrap">${building.images.map((img, i) => `<img src="${img}" alt="Foto" data-lightbox-building="${building.id}" data-lightbox-index="${i}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;cursor:zoom-in"/>`).join('')}</div>`
     : '';
 
   return `
@@ -95,6 +96,7 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
   const markersRef = useRef<L.LayerGroup | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
 
   // Initialize map
   useEffect(() => {
@@ -241,6 +243,27 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
     });
   }, [buildings]);
 
+  // Delegate clicks on popup images to open lightbox
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const container = map.getContainer();
+
+    const handler = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (!target || target.tagName !== 'IMG') return;
+      const id = target.getAttribute('data-lightbox-building');
+      const idxAttr = target.getAttribute('data-lightbox-index');
+      if (!id || idxAttr === null) return;
+      const b = buildings.find((x) => x.id === id);
+      if (!b || !b.images.length) return;
+      setLightbox({ images: b.images, index: Number(idxAttr) || 0 });
+    };
+
+    container.addEventListener('click', handler);
+    return () => container.removeEventListener('click', handler);
+  }, [buildings]);
+
   return (
     <div className="relative w-full h-full">
       {isAdding && (
@@ -260,6 +283,14 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
         {locating ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Locate className="h-5 w-5" />}
       </Button>
       <div ref={containerRef} className="w-full h-full" style={{ minHeight: '400px' }} />
+      {lightbox && (
+        <Lightbox
+          images={lightbox.images}
+          index={lightbox.index}
+          onClose={() => setLightbox(null)}
+          onIndexChange={(i) => setLightbox((l) => (l ? { ...l, index: i } : l))}
+        />
+      )}
     </div>
   );
 };
