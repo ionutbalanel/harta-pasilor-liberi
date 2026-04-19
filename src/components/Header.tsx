@@ -8,20 +8,24 @@ interface HeaderProps {
 const Header = ({ onAddReport }: HeaderProps) => {
   return (
     <header className="border-b border-border bg-card shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <MapPin className="w-5 h-5 text-primary-foreground" />
+      <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
+            <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
           </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-foreground leading-tight">Harta Rușinii</h1>
-            <p className="text-xs text-muted-foreground">Accesibilitate pentru toți</p>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-extrabold text-foreground leading-tight truncate">Harta Rușinii</h1>
+            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Accesibilitate pentru toți</p>
           </div>
         </div>
-        <Button onClick={onAddReport} size="lg" className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-          <Plus className="w-5 h-5" />
+        <Button
+          onClick={onAddReport}
+          size="default"
+          className="gap-1.5 sm:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shrink-0 px-3 sm:px-4"
+        >
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="hidden sm:inline">Raportează o clădire</span>
-          <span className="sm:hidden">Raportează</span>
+          <span className="sm:hidden text-sm">Raportează</span>
         </Button>
       </div>
     </header>
