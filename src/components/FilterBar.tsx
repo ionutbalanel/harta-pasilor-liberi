@@ -11,11 +11,10 @@ const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
   return (
     <div className="bg-card border-b border-border">
       <div className="w-full flex flex-nowrap items-center gap-1 sm:gap-2 px-2 sm:px-6 py-2 sm:py-3 overflow-x-auto">
-        <div className="hidden sm:flex items-center gap-1.5 mr-1 shrink-0">
-          <Filter className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs sm:text-sm font-medium text-muted-foreground">Filtrează:</span>
+        <div className="flex items-center gap-1 sm:gap-1.5 mr-0.5 sm:mr-1 shrink-0">
+          <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+          <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Filtrează:</span>
         </div>
-        <Filter className="w-4 h-4 text-muted-foreground shrink-0 sm:hidden" />
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
