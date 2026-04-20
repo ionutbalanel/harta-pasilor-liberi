@@ -9,11 +9,12 @@ interface FilterBarProps {
 
 const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
   return (
-    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-3 bg-card border-b border-border">
-      <div className="flex items-center gap-1.5 mr-1">
-        <Filter className="w-4 h-4 text-muted-foreground" />
-        <span className="text-xs sm:text-sm font-medium text-muted-foreground">Filtrează:</span>
-      </div>
+    <div className="bg-card border-b border-border">
+      <div className="w-full max-w-screen-xl mx-auto flex flex-wrap items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3">
+        <div className="flex items-center gap-1.5 mr-1">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs sm:text-sm font-medium text-muted-foreground">Filtrează:</span>
+        </div>
       <Button
         variant={filter === 'all' ? 'default' : 'outline'}
         size="sm"
@@ -41,6 +42,7 @@ const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
         <XCircle className="w-3.5 h-3.5" />
         Inaccesibile
       </Button>
+      </div>
     </div>
   );
 };
