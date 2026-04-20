@@ -10,7 +10,7 @@ interface StatsBarProps {
 const StatsBar = ({ total, accessible, inaccessible, accessiblePercent }: StatsBarProps) => {
   return (
     <div className="bg-card border-b border-border">
-      <div className="w-full max-w-screen-xl mx-auto px-3 sm:px-6 py-2 sm:py-3">
+      <div className="w-full px-3 sm:px-6 py-2 sm:py-3">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 sm:gap-3">
           <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-secondary min-w-0">
             <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-primary shrink-0" />
