@@ -42,6 +42,7 @@ const FilterBar = ({ filter, onFilterChange }: FilterBarProps) => {
         <XCircle className="w-3.5 h-3.5" />
         Inaccesibile
       </Button>
+      </div>
     </div>
   );
 };
