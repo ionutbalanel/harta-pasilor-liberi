@@ -14,6 +14,7 @@ interface ReportFormProps {
   lng: number;
   onSubmit: (report: BuildingReport) => void;
   onCancel: () => void;
+  submitting?: boolean;
 }
 
 type CriterionDef = {
@@ -36,7 +37,7 @@ const OPTION_LABELS: Record<AccessibilityValue, string> = {
   na: 'Inutil',
 };
 
-const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
+const ReportForm = ({ lat, lng, onSubmit, onCancel, submitting = false }: ReportFormProps) => {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [type, setType] = useState<BuildingReport['type']>('public');
@@ -253,8 +254,8 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel }: ReportFormProps) => {
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2">
-            <Button type="submit" size="lg" className="w-full bg-primary text-primary-foreground font-semibold">
-              Trimite raportul
+            <Button type="submit" size="lg" disabled={submitting} className="w-full bg-primary text-primary-foreground font-semibold">
+              {submitting ? 'Se trimite…' : 'Trimite raportul'}
             </Button>
             <div className="flex gap-2">
               <Button type="button" variant="outline" size="sm" onClick={generatePDF} className="flex-1 gap-1.5">
