@@ -8,7 +8,7 @@ interface HeaderProps {
 const Header = ({ onAddReport }: HeaderProps) => {
   return (
     <header className="border-b border-border bg-card shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between gap-2">
+      <div className="w-full max-w-screen-xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
             <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
