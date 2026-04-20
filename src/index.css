@@ -124,8 +124,3 @@
 .custom-pin-inaccessible {
   filter: hue-rotate(-15deg) saturate(2) brightness(0.9);
 }
-iframe,
-[id*="lovable"],
-[class*="lovable"] {
-  display: none !important;
-}
