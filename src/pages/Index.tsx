@@ -68,13 +68,28 @@ const Index = () => {
     });
   }, []);
 
+  const handleDelete = useCallback(async (id: string) => {
+    try {
+      await deleteBuilding(id);
+      setBuildings((prev) => prev.filter((b) => b.id !== id));
+      toast({ title: 'Șters', description: 'Clădirea a fost ștearsă.' });
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Eroare',
+        description: 'Nu am putut șterge clădirea.',
+        variant: 'destructive',
+      });
+    }
+  }, []);
+
   return (
     <div className="flex flex-col h-screen overflow-hidden">
       <Header onAddReport={handleStartAdding} />
       <StatsBar {...stats} />
       <FilterBar filter={filter} onFilterChange={setFilter} />
       <div className="flex-1 relative">
-        <MapView buildings={filteredBuildings} onMapClick={handleMapClick} isAdding={isAdding} />
+        <MapView buildings={filteredBuildings} onMapClick={handleMapClick} isAdding={isAdding} onDelete={handleDelete} />
       </div>
       {formCoords && (
         <ReportForm
