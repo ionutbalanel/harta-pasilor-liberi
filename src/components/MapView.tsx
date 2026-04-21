@@ -97,9 +97,10 @@ interface MapViewProps {
   buildings: BuildingReport[];
   onMapClick: (lat: number, lng: number) => void;
   isAdding: boolean;
+  onDelete: (id: string) => void;
 }
 
-const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
+const MapView = ({ buildings, onMapClick, isAdding, onDelete }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
