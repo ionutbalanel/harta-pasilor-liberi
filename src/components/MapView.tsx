@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Locate, LoaderCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import Lightbox from './Lightbox';
+import MapSearch from './MapSearch';
 import { generateReportPDF } from '@/lib/generateReportPDF';
 
 // Republic of Moldova default view
@@ -322,10 +323,30 @@ const MapView = ({ buildings, onMapClick, isAdding, onDelete }: MapViewProps) =>
     return () => container.removeEventListener('click', handler);
   }, [buildings, onDelete]);
 
+  const handleSearchSelect = useCallback(
+    (lat: number, lng: number, bbox?: [number, number, number, number]) => {
+      const map = mapRef.current;
+      if (!map) return;
+      if (bbox) {
+        map.flyToBounds(
+          [
+            [bbox[0], bbox[1]],
+            [bbox[2], bbox[3]],
+          ],
+          { duration: 1.2, maxZoom: 16 }
+        );
+      } else {
+        map.flyTo([lat, lng], 14, { duration: 1.2 });
+      }
+    },
+    []
+  );
+
   return (
     <div className="relative w-full h-full">
+      <MapSearch onSelect={handleSearchSelect} />
       {isAdding && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-pulse">
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-pulse">
           📍 Click pe hartă pentru a alege locația
         </div>
       )}
