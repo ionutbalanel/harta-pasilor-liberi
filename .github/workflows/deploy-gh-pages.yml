@@ -21,13 +21,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Build app
-        run: GITHUB_PAGES=true npm run build
+        run: npm run build
+        env:
+          GITHUB_PAGES: "true"
 
       - name: Deploy dist to gh-pages
         uses: peaceiris/actions-gh-pages@v4
