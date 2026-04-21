@@ -1,0 +1,1 @@
+CREATE POLICY "Anyone can delete buildings" ON public.buildings FOR DELETE USING (true);
