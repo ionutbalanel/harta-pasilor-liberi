@@ -263,6 +263,26 @@ const MapView = ({ buildings, onMapClick, isAdding, onDelete }: MapViewProps) =>
       const target = e.target as HTMLElement;
       if (!target) return;
 
+      // Delete button
+      const delBtn = target.closest('[data-delete-building]') as HTMLElement | null;
+      if (delBtn) {
+        const id = delBtn.getAttribute('data-delete-building');
+        if (!id) return;
+        const pwd = window.prompt('Introdu parola pentru a șterge această clădire:');
+        if (pwd === null) return;
+        if (pwd !== 'Flor@2026') {
+          toast({
+            title: 'Parolă incorectă',
+            description: 'Ștergerea a fost anulată.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        onDelete(id);
+        map.closePopup();
+        return;
+      }
+
       // PDF download button (may be clicked on the button or its inner svg/path)
       const pdfBtn = target.closest('[data-pdf-building]') as HTMLElement | null;
       if (pdfBtn) {
