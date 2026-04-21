@@ -81,7 +81,7 @@ const MapSearch = ({ onSelect }: MapSearchProps) => {
   };
 
   return (
-    <div ref={wrapRef} className="absolute top-3 left-3 z-[1000] w-[min(360px,calc(100%-1.5rem))]">
+    <div ref={wrapRef} className="absolute top-3 left-14 z-[1000] w-[min(360px,calc(100%-4rem))]">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
