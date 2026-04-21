@@ -85,6 +85,10 @@ function buildPopupContent(building: BuildingReport): string {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Descarcă raport PDF
       </button>
+      <button data-delete-building="${building.id}" style="margin-top:6px;width:100%;padding:8px 10px;border:1px solid #ef4444;border-radius:8px;background:white;color:#ef4444;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>
+        Șterge
+      </button>
     </div>
   `;
 }
@@ -93,9 +97,10 @@ interface MapViewProps {
   buildings: BuildingReport[];
   onMapClick: (lat: number, lng: number) => void;
   isAdding: boolean;
+  onDelete: (id: string) => void;
 }
 
-const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
+const MapView = ({ buildings, onMapClick, isAdding, onDelete }: MapViewProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
@@ -258,6 +263,26 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
       const target = e.target as HTMLElement;
       if (!target) return;
 
+      // Delete button
+      const delBtn = target.closest('[data-delete-building]') as HTMLElement | null;
+      if (delBtn) {
+        const id = delBtn.getAttribute('data-delete-building');
+        if (!id) return;
+        const pwd = window.prompt('Introdu parola pentru a șterge această clădire:');
+        if (pwd === null) return;
+        if (pwd !== 'Flor@2026') {
+          toast({
+            title: 'Parolă incorectă',
+            description: 'Ștergerea a fost anulată.',
+            variant: 'destructive',
+          });
+          return;
+        }
+        onDelete(id);
+        map.closePopup();
+        return;
+      }
+
       // PDF download button (may be clicked on the button or its inner svg/path)
       const pdfBtn = target.closest('[data-pdf-building]') as HTMLElement | null;
       if (pdfBtn) {
@@ -295,7 +320,7 @@ const MapView = ({ buildings, onMapClick, isAdding }: MapViewProps) => {
 
     container.addEventListener('click', handler);
     return () => container.removeEventListener('click', handler);
-  }, [buildings]);
+  }, [buildings, onDelete]);
 
   return (
     <div className="relative w-full h-full">

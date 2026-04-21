@@ -110,6 +110,11 @@ export async function addBuilding(
   return rowToReport(data as DbRow);
 }
 
+export async function deleteBuilding(id: string): Promise<void> {
+  const { error } = await supabase.from('buildings').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export function getStats(buildings: BuildingReport[]) {
   const total = buildings.length;
   const accessible = buildings.filter((b) => b.verdict === 'accessible').length;
