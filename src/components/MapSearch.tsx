@@ -81,19 +81,19 @@ const MapSearch = ({ onSelect }: MapSearchProps) => {
   };
 
   return (
-    <div ref={wrapRef} className="absolute top-3 left-14 z-[1000] w-[min(360px,calc(100%-4rem))]">
+    <div ref={wrapRef} className="absolute top-3 left-14 z-[1000] w-[min(240px,calc(100%-4rem))]">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length && setOpen(true)}
-          placeholder="Caută o localitate sau adresă..."
-          className="pl-9 pr-9 h-11 bg-background shadow-lg border-border"
+          placeholder="Caută adresă..."
+          className="pl-8 pr-8 h-9 text-xs bg-background shadow-lg border-border"
           aria-label="Caută locație"
         />
         {loading ? (
-          <LoaderCircle className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+          <LoaderCircle className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />
         ) : query ? (
           <button
             onClick={clear}
