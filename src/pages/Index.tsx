@@ -5,7 +5,7 @@ import FilterBar from '@/components/FilterBar';
 import MapView from '@/components/MapView';
 import ReportForm from '@/components/ReportForm';
 import { BuildingReport, BuildingFilter } from '@/types/building';
-import { fetchBuildings, addBuilding, getStats } from '@/store/buildings';
+import { fetchBuildings, addBuilding, deleteBuilding, getStats } from '@/store/buildings';
 import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
