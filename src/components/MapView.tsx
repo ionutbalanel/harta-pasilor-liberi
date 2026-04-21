@@ -320,7 +320,7 @@ const MapView = ({ buildings, onMapClick, isAdding, onDelete }: MapViewProps) =>
 
     container.addEventListener('click', handler);
     return () => container.removeEventListener('click', handler);
-  }, [buildings]);
+  }, [buildings, onDelete]);
 
   return (
     <div className="relative w-full h-full">
