@@ -1,5 +1,6 @@
-import { MapPin, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import logo from '@/assets/logo-accesibilitatii.png';
 
 interface HeaderProps {
   onAddReport: () => void;
@@ -8,14 +9,28 @@ interface HeaderProps {
 const Header = ({ onAddReport }: HeaderProps) => {
   return (
     <header className="border-b border-border bg-card shadow-sm sticky top-0 z-50">
-      <div className="w-full px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
-            <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground" />
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-base sm:text-xl font-extrabold text-foreground leading-tight truncate">Harta Rușinii</h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Accesibilitate pentru toți</p>
+      <div className="w-full px-3 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <img
+            src={logo}
+            alt="Logo Harta Accesibilității"
+            width={48}
+            height={48}
+            className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 object-contain"
+          />
+          <div className="min-w-0 flex items-center gap-3 sm:gap-4">
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-xl font-extrabold text-foreground leading-tight truncate">
+                Harta Accesibilității
+              </h1>
+              <p className="text-[11px] sm:text-sm font-semibold text-[hsl(142_71%_38%)] leading-tight truncate">
+                Acces pentru toți.
+              </p>
+            </div>
+            <div className="hidden md:block h-10 w-px bg-border shrink-0" />
+            <p className="hidden md:block text-xs lg:text-sm text-muted-foreground leading-snug max-w-md">
+              O platformă civică care identifică și promovează accesibilitatea clădirilor, pentru comunități incluzive.
+            </p>
           </div>
         </div>
         <Button
