@@ -53,6 +53,7 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel, submitting = false }: Report
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const verdict = calculateVerdict(criteria);
+  const hasAnyCriterion = Object.values(criteria).some((v) => v !== null);
 
   const toggleCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
     setCriteria((prev) => ({ ...prev, [id]: prev[id] === value ? null : value }));
