@@ -31,7 +31,7 @@ export const BUILDING_TYPES: Record<BuildingReport['type'], string> = {
 export const ACCESSIBILITY_LABELS: Record<AccessibilityValue, string> = {
   yes: 'Da',
   no: 'Nu',
-  na: 'Inutil',
+  na: 'Neconform',
 };
 
 interface CriteriaInput {
