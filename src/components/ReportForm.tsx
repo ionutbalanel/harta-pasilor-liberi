@@ -53,6 +53,7 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel, submitting = false }: Report
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const verdict = calculateVerdict(criteria);
+  const hasAnyCriterion = Object.values(criteria).some((v) => v !== null);
 
   const toggleCriterion = (id: CriterionDef['id'], value: AccessibilityValue) =>
     setCriteria((prev) => ({ ...prev, [id]: prev[id] === value ? null : value }));
@@ -125,24 +126,30 @@ const ReportForm = ({ lat, lng, onSubmit, onCancel, submitting = false }: Report
         </div>
 
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-4 sm:space-y-5">
-          {/* Verdict preview */}
-          <div className={`p-4 rounded-xl flex items-center gap-3 ${
-            verdict === 'accessible' ? 'bg-accessible/10' : 'bg-inaccessible/10'
-          }`}>
-            {verdict === 'accessible' ? (
-              <CheckCircle2 className="w-8 h-8 text-accessible" />
-            ) : (
-              <XCircle className="w-8 h-8 text-inaccessible" />
-            )}
-            <div>
-              <p className={`font-bold text-lg ${
-                verdict === 'accessible' ? 'text-accessible' : 'text-inaccessible'
-              }`}>
-                {verdict === 'accessible' ? 'Accesibilă' : 'Inaccesibilă'}
-              </p>
-              <p className="text-xs text-muted-foreground">Verdict calculat automat</p>
+          {/* Verdict preview — only after at least one criterion is set */}
+          {hasAnyCriterion ? (
+            <div className={`p-4 rounded-xl flex items-center gap-3 ${
+              verdict === 'accessible' ? 'bg-accessible/10' : 'bg-inaccessible/10'
+            }`}>
+              {verdict === 'accessible' ? (
+                <CheckCircle2 className="w-8 h-8 text-accessible" />
+              ) : (
+                <XCircle className="w-8 h-8 text-inaccessible" />
+              )}
+              <div>
+                <p className={`font-bold text-lg ${
+                  verdict === 'accessible' ? 'text-accessible' : 'text-inaccessible'
+                }`}>
+                  {verdict === 'accessible' ? 'Accesibilă' : 'Inaccesibilă'}
+                </p>
+                <p className="text-xs text-muted-foreground">Verdict calculat automat</p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-4 rounded-xl bg-muted/50 border border-dashed border-border text-sm text-muted-foreground text-center">
+              Completează criteriile pentru verdict
+            </div>
+          )}
 
           {/* Name */}
           <div className="space-y-1.5">
