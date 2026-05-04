@@ -18,7 +18,7 @@ const Header = ({ onAddReport }: HeaderProps) => {
             height={48}
             className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 object-contain"
           />
-          <div className="min-w-0 flex items-center gap-3 sm:gap-4">
+          <div className="min-w-0 flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
             <div className="min-w-0">
               <h1 className="text-base sm:text-xl font-extrabold text-foreground leading-tight truncate">
                 Harta Accesibilității
@@ -28,7 +28,7 @@ const Header = ({ onAddReport }: HeaderProps) => {
               </p>
             </div>
             <div className="hidden md:block h-10 w-px bg-border shrink-0" />
-            <p className="hidden md:block text-xs lg:text-sm text-muted-foreground leading-snug max-w-md">
+            <p className="text-[11px] sm:text-xs lg:text-sm text-muted-foreground leading-snug max-w-md">
               O platformă civică care identifică și promovează accesibilitatea clădirilor, pentru comunități incluzive.
             </p>
           </div>
