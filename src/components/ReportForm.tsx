@@ -34,7 +34,7 @@ const CRITERIA: CriterionDef[] = [
 const OPTION_LABELS: Record<AccessibilityValue, string> = {
   yes: 'Da',
   no: 'Nu',
-  na: 'Inutil',
+  na: 'Neconform',
 };
 
 const ReportForm = ({ lat, lng, onSubmit, onCancel, submitting = false }: ReportFormProps) => {
