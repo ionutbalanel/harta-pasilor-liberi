@@ -99,8 +99,10 @@ export async function generateReportPDF(b: {
       doc.setTextColor(220, 38, 38);
       doc.text('✖', margin + 4, y);
     } else {
-      doc.setTextColor(120);
-      doc.text('➖', margin + 4, y);
+      doc.setDrawColor(120);
+      doc.setLineWidth(1.4);
+      doc.line(margin + 4, y - 2.2, margin + 8.5, y - 2.2);
+      doc.setLineWidth(0.2);
     }
     doc.setFont('NotoSans', 'normal');
     doc.setTextColor(0);
