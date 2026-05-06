@@ -16,9 +16,9 @@ function registerFonts(doc: jsPDF) {
     // jsPDF instances are separate; still need to add VFS+font each time
   }
   doc.addFileToVFS('NotoSans-Regular.ttf', NotoSansRegular);
-  doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal', 'normal', 'Identity-H');
+  doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal', undefined, 'Identity-H');
   doc.addFileToVFS('NotoSans-Bold.ttf', NotoSansBold);
-  doc.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold', 'bold', 'Identity-H');
+  doc.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold', undefined, 'Identity-H');
   fontsRegistered = true;
 }
 
