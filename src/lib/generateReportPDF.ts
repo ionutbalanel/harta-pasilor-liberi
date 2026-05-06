@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import { BuildingReport, BUILDING_TYPES } from '@/types/building';
-import { DejaVuSansRegular, DejaVuSansBold } from './fonts/dejavu';
+import { NotoSansRegular, NotoSansBold, NotoSansSymbols } from './fonts/noto';
 
 const CRITERIA_LABELS: Record<string, string> = {
   hasRamp: 'Rampă de acces',
@@ -15,10 +15,12 @@ function registerFonts(doc: jsPDF) {
   if (fontsRegistered) {
     // jsPDF instances are separate; still need to add VFS+font each time
   }
-  doc.addFileToVFS('DejaVuSans.ttf', DejaVuSansRegular);
-  doc.addFont('DejaVuSans.ttf', 'DejaVu', 'normal');
-  doc.addFileToVFS('DejaVuSans-Bold.ttf', DejaVuSansBold);
-  doc.addFont('DejaVuSans-Bold.ttf', 'DejaVu', 'bold');
+  doc.addFileToVFS('NotoSans-Regular.ttf', NotoSansRegular);
+  doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal', undefined, 'Identity-H');
+  doc.addFileToVFS('NotoSans-Bold.ttf', NotoSansBold);
+  doc.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold', undefined, 'Identity-H');
+  doc.addFileToVFS('NotoSansSymbols2-Regular.ttf', NotoSansSymbols);
+  doc.addFont('NotoSansSymbols2-Regular.ttf', 'NotoSansSymbols', 'normal', undefined, 'Identity-H');
   fontsRegistered = true;
 }
 
@@ -39,18 +41,18 @@ export async function generateReportPDF(b: {
 }) {
   const doc = new jsPDF();
   registerFonts(doc);
-  doc.setFont('DejaVu', 'normal');
+  doc.setFont('NotoSans', 'normal');
 
   const margin = 20;
   let y = margin;
 
   doc.setFontSize(18);
-  doc.setFont('DejaVu', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.text('Harta Accesibilității - Raport Accesibilitate', margin, y);
   y += 12;
 
   doc.setFontSize(10);
-  doc.setFont('DejaVu', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.text(`Generat la: ${new Date().toLocaleDateString('ro-RO')}`, margin, y);
   y += 10;
 
@@ -59,18 +61,18 @@ export async function generateReportPDF(b: {
   y += 8;
 
   doc.setFontSize(14);
-  doc.setFont('DejaVu', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.text(b.name || 'Fără nume', margin, y);
   y += 7;
 
   doc.setFontSize(10);
-  doc.setFont('DejaVu', 'normal');
+  doc.setFont('NotoSans', 'normal');
   doc.text(`Adresă: ${b.address}`, margin, y); y += 6;
   doc.text(`Tip: ${BUILDING_TYPES[b.type]}`, margin, y); y += 6;
   doc.text(`Coordonate: ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}`, margin, y); y += 10;
 
   doc.setFontSize(12);
-  doc.setFont('DejaVu', 'bold');
+  doc.setFont('NotoSans', 'bold');
   const verdictText = b.verdict === 'accessible' ? 'ACCESIBILĂ' : 'INACCESIBILĂ';
   doc.setTextColor(
     b.verdict === 'accessible' ? 22 : 239,
@@ -82,14 +84,14 @@ export async function generateReportPDF(b: {
   y += 10;
 
   doc.setFontSize(11);
-  doc.setFont('DejaVu', 'bold');
+  doc.setFont('NotoSans', 'bold');
   doc.text('Criterii de accesibilitate:', margin, y); y += 7;
 
   doc.setFontSize(10);
   const keys = ['hasRamp', 'hasElevator', 'hasWideDoors', 'hasAdaptedBathroom', 'hasObstacleFreeAccess'] as const;
   keys.forEach((key) => {
     const v = b[key];
-    doc.setFont('DejaVu', 'bold');
+    doc.setFont('NotoSansSymbols', 'normal');
     if (v === 'yes') {
       doc.setTextColor(22, 163, 74);
       doc.text('✔', margin + 4, y);
@@ -97,10 +99,12 @@ export async function generateReportPDF(b: {
       doc.setTextColor(220, 38, 38);
       doc.text('✖', margin + 4, y);
     } else {
-      doc.setTextColor(120);
-      doc.text('➖', margin + 4, y);
+      doc.setDrawColor(120);
+      doc.setLineWidth(1.4);
+      doc.line(margin + 4, y - 2.2, margin + 8.5, y - 2.2);
+      doc.setLineWidth(0.2);
     }
-    doc.setFont('DejaVu', 'normal');
+    doc.setFont('NotoSans', 'normal');
     doc.setTextColor(0);
     doc.text(CRITERIA_LABELS[key], margin + 12, y);
     y += 6;
@@ -108,9 +112,9 @@ export async function generateReportPDF(b: {
 
   if (b.comments) {
     y += 4;
-    doc.setFont('DejaVu', 'bold');
+    doc.setFont('NotoSans', 'bold');
     doc.text('Comentarii:', margin, y); y += 6;
-    doc.setFont('DejaVu', 'normal');
+    doc.setFont('NotoSans', 'normal');
     const lines = doc.splitTextToSize(b.comments, 170);
     doc.text(lines, margin, y);
     y += lines.length * 5;
