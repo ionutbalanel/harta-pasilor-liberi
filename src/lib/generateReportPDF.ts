@@ -30,7 +30,7 @@ export async function generateReportPDF(b: {
 
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('Harta Rusinii - Raport Accesibilitate', margin, y);
+  doc.text('Harta Accesibilitatii - Raport Accesibilitate', margin, y);
   y += 12;
 
   doc.setFontSize(10);
