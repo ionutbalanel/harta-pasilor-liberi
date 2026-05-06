@@ -1,13 +1,26 @@
 import jsPDF from 'jspdf';
 import { BuildingReport, BUILDING_TYPES } from '@/types/building';
+import { DejaVuSansRegular, DejaVuSansBold } from './fonts/dejavu';
 
 const CRITERIA_LABELS: Record<string, string> = {
-  hasRamp: 'Rampa de acces',
-  hasElevator: 'Lift functional',
-  hasWideDoors: 'Usi suficient de largi',
+  hasRamp: 'Rampă de acces',
+  hasElevator: 'Lift funcțional',
+  hasWideDoors: 'Uși suficient de largi',
   hasAdaptedBathroom: 'Grup sanitar adaptat',
-  hasObstacleFreeAccess: 'Acces fara obstacole',
+  hasObstacleFreeAccess: 'Acces fără obstacole',
 };
+
+let fontsRegistered = false;
+function registerFonts(doc: jsPDF) {
+  if (fontsRegistered) {
+    // jsPDF instances are separate; still need to add VFS+font each time
+  }
+  doc.addFileToVFS('DejaVuSans.ttf', DejaVuSansRegular);
+  doc.addFont('DejaVuSans.ttf', 'DejaVu', 'normal');
+  doc.addFileToVFS('DejaVuSans-Bold.ttf', DejaVuSansBold);
+  doc.addFont('DejaVuSans-Bold.ttf', 'DejaVu', 'bold');
+  fontsRegistered = true;
+}
 
 export async function generateReportPDF(b: {
   name: string;
@@ -25,16 +38,19 @@ export async function generateReportPDF(b: {
   verdict: BuildingReport['verdict'];
 }) {
   const doc = new jsPDF();
+  registerFonts(doc);
+  doc.setFont('DejaVu', 'normal');
+
   const margin = 20;
   let y = margin;
 
   doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Harta Accesibilitatii - Raport Accesibilitate', margin, y);
+  doc.setFont('DejaVu', 'bold');
+  doc.text('Harta Accesibilității - Raport Accesibilitate', margin, y);
   y += 12;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('DejaVu', 'normal');
   doc.text(`Generat la: ${new Date().toLocaleDateString('ro-RO')}`, margin, y);
   y += 10;
 
@@ -43,19 +59,19 @@ export async function generateReportPDF(b: {
   y += 8;
 
   doc.setFontSize(14);
-  doc.setFont('helvetica', 'bold');
-  doc.text(b.name || 'Fara nume', margin, y);
+  doc.setFont('DejaVu', 'bold');
+  doc.text(b.name || 'Fără nume', margin, y);
   y += 7;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Adresa: ${b.address}`, margin, y); y += 6;
+  doc.setFont('DejaVu', 'normal');
+  doc.text(`Adresă: ${b.address}`, margin, y); y += 6;
   doc.text(`Tip: ${BUILDING_TYPES[b.type]}`, margin, y); y += 6;
   doc.text(`Coordonate: ${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}`, margin, y); y += 10;
 
   doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  const verdictText = b.verdict === 'accessible' ? 'ACCESIBILA' : 'INACCESIBILA';
+  doc.setFont('DejaVu', 'bold');
+  const verdictText = b.verdict === 'accessible' ? 'ACCESIBILĂ' : 'INACCESIBILĂ';
   doc.setTextColor(
     b.verdict === 'accessible' ? 22 : 239,
     b.verdict === 'accessible' ? 163 : 68,
@@ -66,33 +82,25 @@ export async function generateReportPDF(b: {
   y += 10;
 
   doc.setFontSize(11);
-  doc.setFont('helvetica', 'bold');
+  doc.setFont('DejaVu', 'bold');
   doc.text('Criterii de accesibilitate:', margin, y); y += 7;
 
   doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
   const keys = ['hasRamp', 'hasElevator', 'hasWideDoors', 'hasAdaptedBathroom', 'hasObstacleFreeAccess'] as const;
   keys.forEach((key) => {
     const v = b[key];
-    // Zapfdingbats: '4' = ✔, '8' = ✖. Use helvetica '-' for Neconform.
+    doc.setFont('DejaVu', 'bold');
     if (v === 'yes') {
-      doc.setFont('zapfdingbats', 'normal');
       doc.setTextColor(22, 163, 74);
-      doc.text('4', margin + 4, y);
+      doc.text('✔', margin + 4, y);
     } else if (v === 'no') {
-      doc.setFont('zapfdingbats', 'normal');
       doc.setTextColor(220, 38, 38);
-      doc.text('8', margin + 4, y);
-    } else if (v === 'na') {
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(120);
-      doc.text('-', margin + 4, y);
+      doc.text('✖', margin + 4, y);
     } else {
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(150);
-      doc.text('-', margin + 4, y);
+      doc.setTextColor(120);
+      doc.text('➖', margin + 4, y);
     }
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('DejaVu', 'normal');
     doc.setTextColor(0);
     doc.text(CRITERIA_LABELS[key], margin + 12, y);
     y += 6;
@@ -100,9 +108,9 @@ export async function generateReportPDF(b: {
 
   if (b.comments) {
     y += 4;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('DejaVu', 'bold');
     doc.text('Comentarii:', margin, y); y += 6;
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('DejaVu', 'normal');
     const lines = doc.splitTextToSize(b.comments, 170);
     doc.text(lines, margin, y);
     y += lines.length * 5;
