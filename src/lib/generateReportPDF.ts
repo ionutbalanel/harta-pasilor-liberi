@@ -30,7 +30,7 @@ export async function generateReportPDF(b: {
 
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('Harta Rusinii - Raport Accesibilitate', margin, y);
+  doc.text('Harta Accesibilitatii - Raport Accesibilitate', margin, y);
   y += 12;
 
   doc.setFontSize(10);
@@ -74,8 +74,27 @@ export async function generateReportPDF(b: {
   const keys = ['hasRamp', 'hasElevator', 'hasWideDoors', 'hasAdaptedBathroom', 'hasObstacleFreeAccess'] as const;
   keys.forEach((key) => {
     const v = b[key];
-    const mark = v === 'yes' ? '[DA]' : v === 'no' ? '[NU]' : v === 'na' ? '[N/A]' : '[ - ]';
-    doc.text(`${mark} ${CRITERIA_LABELS[key]}`, margin + 4, y);
+    // Zapfdingbats: '4' = ✔, '8' = ✖. Use helvetica '-' for Neconform.
+    if (v === 'yes') {
+      doc.setFont('zapfdingbats', 'normal');
+      doc.setTextColor(22, 163, 74);
+      doc.text('4', margin + 4, y);
+    } else if (v === 'no') {
+      doc.setFont('zapfdingbats', 'normal');
+      doc.setTextColor(220, 38, 38);
+      doc.text('8', margin + 4, y);
+    } else if (v === 'na') {
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(120);
+      doc.text('-', margin + 4, y);
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(150);
+      doc.text('-', margin + 4, y);
+    }
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0);
+    doc.text(CRITERIA_LABELS[key], margin + 12, y);
     y += 6;
   });
 
