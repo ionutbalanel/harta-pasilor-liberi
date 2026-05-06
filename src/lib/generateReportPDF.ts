@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import { BuildingReport, BUILDING_TYPES } from '@/types/building';
-import { NotoSansRegular, NotoSansBold } from './fonts/noto';
+import { NotoSansRegular, NotoSansBold, NotoSansSymbols } from './fonts/noto';
 
 const CRITERIA_LABELS: Record<string, string> = {
   hasRamp: 'Rampă de acces',
@@ -19,6 +19,8 @@ function registerFonts(doc: jsPDF) {
   doc.addFont('NotoSans-Regular.ttf', 'NotoSans', 'normal', undefined, 'Identity-H');
   doc.addFileToVFS('NotoSans-Bold.ttf', NotoSansBold);
   doc.addFont('NotoSans-Bold.ttf', 'NotoSans', 'bold', undefined, 'Identity-H');
+  doc.addFileToVFS('NotoSansSymbols2-Regular.ttf', NotoSansSymbols);
+  doc.addFont('NotoSansSymbols2-Regular.ttf', 'NotoSansSymbols', 'normal', undefined, 'Identity-H');
   fontsRegistered = true;
 }
 
@@ -89,7 +91,7 @@ export async function generateReportPDF(b: {
   const keys = ['hasRamp', 'hasElevator', 'hasWideDoors', 'hasAdaptedBathroom', 'hasObstacleFreeAccess'] as const;
   keys.forEach((key) => {
     const v = b[key];
-    doc.setFont('NotoSans', 'bold');
+    doc.setFont('NotoSansSymbols', 'normal');
     if (v === 'yes') {
       doc.setTextColor(22, 163, 74);
       doc.text('✔', margin + 4, y);
